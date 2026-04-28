@@ -7,15 +7,15 @@
 <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
 <style>
   :root {
-    --yellow: #F6FFDC;
-    --blue:   #CFECF3;
-    --mint:   #DAF9DE;
-    --pink:   #F9B2D7;
-    --bg:     #F6FFDC;
+    --yellow: #FFEF91;
+    --blue:   #9AD872;
+    --mint:   #9AD872;
+    --pink:   #FFA02E;
+    --bg:     #FFEF91;
     --text:   #1a2a1a;
-    --muted:  #7a9a7a;
-    --border: #d4e8a0;
-    --accent: #4a7c3f;
+    --muted:  #5a7a3a;
+    --border: #9AD872;
+    --accent: #468432;
     --mono:   'Share Tech Mono', monospace;
     --sans:   'Syne', sans-serif;
   }
@@ -101,7 +101,7 @@
     font-size: 0.75rem;
     color: #c0478a;
     background: var(--pink);
-    border: 1px solid #e8a0c8;
+    border: 1px solid #e07010;
     padding: 0.5rem 1rem;
     border-radius: 8px;
     width: fit-content;
@@ -142,7 +142,7 @@
   /* Main weather card */
   .card-main {
     background: var(--blue);
-    border-color: #aad4e0;
+    border-color: #7ac052;
     grid-column: span 2;
     display: flex;
     align-items: center;
@@ -183,7 +183,7 @@
   /* Stat card */
   .card-stat {
     background: var(--pink);
-    border-color: #e8a0c8;
+    border-color: #e07010;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -256,7 +256,7 @@
 
   .card-sun {
     background: var(--blue);
-    border-color: #aad4e0;
+    border-color: #7ac052;
     display: flex;
     align-items: center;
     gap: 1rem;
@@ -451,7 +451,12 @@ async function fetchWeather(lat, lon) {
 
     const [wRes, fRes] = await Promise.all([fetch(weatherUrl), fetch(forecastUrl)]);
 
-    if (!wRes.ok) { showError('City not found. Please check the spelling and try again.'); return; }
+    if (!wRes.ok) {
+      const errData = await wRes.json();
+      if (wRes.status === 401) { showError('API key not yet active. OpenWeatherMap takes up to 2 hours. Try again shortly.'); return; }
+      if (wRes.status === 404) { showError('City not found. Please check the spelling and try again.'); return; }
+      showError(`Error ${wRes.status}: ${errData.message}`); return;
+    }
 
     const w = await wRes.json();
     const f = await fRes.json();
